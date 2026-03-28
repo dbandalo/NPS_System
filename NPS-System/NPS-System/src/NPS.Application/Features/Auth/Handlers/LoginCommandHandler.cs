@@ -1,5 +1,6 @@
 using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using NPS.Application.DTOs;
 using NPS.Application.Features.Auth.Commands;
 using NPS.Application.Interfaces;
@@ -17,6 +18,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponseDt
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
     private readonly IMapper _mapper;
+    private readonly IConfiguration _configuration;
 
     private const int MaxFailedAttempts = 3;
     private const int LockoutMinutes = 15;
@@ -28,8 +30,10 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponseDt
         IVoteRepository voteRepository,
         IPasswordHasher passwordHasher,
         IJwtTokenGenerator jwtTokenGenerator,
-        IMapper mapper)
+        IMapper mapper,
+        IConfiguration configuration)
     {
+        _configuration = configuration;
         _userRepository = userRepository;
         _refreshTokenRepository = refreshTokenRepository;
         _loginAttemptRepository = loginAttemptRepository;
@@ -109,7 +113,8 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponseDt
         // Generate tokens
         var accessToken = _jwtTokenGenerator.GenerateAccessToken(user);
         var refreshToken = _jwtTokenGenerator.GenerateRefreshToken();
-        var expiresAt = DateTime.UtcNow.AddMinutes(5); // 5 minutes session
+        var accessMinutes = int.TryParse(_configuration["JwtSettings:ExpirationMinutes"], out var am) ? am : 5;
+        var expiresAt = DateTime.UtcNow.AddMinutes(accessMinutes);
 
         // Save refresh token
         await _refreshTokenRepository.CreateAsync(new RefreshToken

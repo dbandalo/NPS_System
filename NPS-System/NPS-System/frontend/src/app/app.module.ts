@@ -5,12 +5,14 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
+import { RefreshTokenInterceptor } from './core/interceptors/refresh-token.interceptor';
+import { SessionTimeoutInterceptor } from './core/interceptors/session-timeout.interceptor';
 
-// Feature Modules
-import { LoginComponent } from './features/login/login.component';
-import { VotingComponent } from './features/voting/voting.component';
-import { DashboardComponent } from './features/dashboard/dashboard.component';
+// Features (auth / survey / results)
+import { LoginComponent } from './features/auth/login/login.component';
+import { SurveyComponent } from './features/survey/survey.component';
+import { DashboardComponent } from './features/results/dashboard/dashboard.component';
 
 // Shared Components
 import { HeaderComponent } from './shared/components/header/header.component';
@@ -20,7 +22,7 @@ import { SessionTimerComponent } from './shared/components/session-timer/session
   declarations: [
     AppComponent,
     LoginComponent,
-    VotingComponent,
+    SurveyComponent,
     DashboardComponent,
     HeaderComponent,
     SessionTimerComponent
@@ -32,11 +34,9 @@ import { SessionTimerComponent } from './shared/components/session-timer/session
     ReactiveFormsModule
   ],
   providers: [
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptor,
-      multi: true
-    }
+    { provide: HTTP_INTERCEPTORS, useClass: SessionTimeoutInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: RefreshTokenInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })

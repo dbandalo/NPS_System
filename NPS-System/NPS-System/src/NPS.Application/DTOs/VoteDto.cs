@@ -27,5 +27,7 @@ public class NpsResultDto
     public decimal PromoterPercentage { get; set; }
     public decimal PassivePercentage { get; set; }
     public decimal DetractorPercentage { get; set; }
+    /// <summary>Etiqueta cualitativa del NPS (p. ej. para clientes que consumen /api/nps/result).</summary>
+    public string NpsLabel { get; set; } = string.Empty;
     public List<VoteDto> RecentVotes { get; set; } = new();
 }

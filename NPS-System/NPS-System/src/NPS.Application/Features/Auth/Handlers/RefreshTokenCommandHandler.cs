@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using NPS.Application.DTOs;
 using NPS.Application.Features.Auth.Commands;
 using NPS.Application.Interfaces;
@@ -12,15 +13,18 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IUserRepository _userRepository;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
+    private readonly IConfiguration _configuration;
 
     public RefreshTokenCommandHandler(
         IRefreshTokenRepository refreshTokenRepository,
         IUserRepository userRepository,
-        IJwtTokenGenerator jwtTokenGenerator)
+        IJwtTokenGenerator jwtTokenGenerator,
+        IConfiguration configuration)
     {
         _refreshTokenRepository = refreshTokenRepository;
         _userRepository = userRepository;
         _jwtTokenGenerator = jwtTokenGenerator;
+        _configuration = configuration;
     }
 
     public async Task<RefreshTokenResponseDto> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
@@ -60,7 +64,8 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
 
         // Generate new access token
         var accessToken = _jwtTokenGenerator.GenerateAccessToken(user);
-        var expiresAt = DateTime.UtcNow.AddMinutes(5);
+        var accessMinutes = int.TryParse(_configuration["JwtSettings:ExpirationMinutes"], out var am) ? am : 5;
+        var expiresAt = DateTime.UtcNow.AddMinutes(accessMinutes);
 
         return new RefreshTokenResponseDto
         {

@@ -37,7 +37,7 @@ public class VotesController : ControllerBase
         };
 
         var result = await _mediator.Send(command);
-        return CreatedAtAction(nameof(CreateVote), new { id = result.Id }, result);
+        return StatusCode(StatusCodes.Status201Created, result);
     }
 
     /// <summary>
@@ -57,12 +57,21 @@ public class VotesController : ControllerBase
     /// </summary>
     [HttpGet("has-voted")]
     [Authorize(Policy = "VotanteOnly")]
-    public async Task<ActionResult<bool>> HasVoted()
+    public Task<ActionResult<VoteStatusDto>> HasVoted()
+        => GetVoteStatusAsync();
+
+    /// <summary>
+    /// Alias según especificación de referencia (DEV-001): mismo comportamiento que has-voted.
+    /// </summary>
+    [HttpGet("status")]
+    [Authorize(Policy = "VotanteOnly")]
+    public Task<ActionResult<VoteStatusDto>> GetVoteStatus()
+        => GetVoteStatusAsync();
+
+    private async Task<ActionResult<VoteStatusDto>> GetVoteStatusAsync()
     {
         var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
-        
-        // This would typically be a query, but for simplicity using the repository directly
-        // In a real scenario, create a GetHasVotedQuery
-        return Ok(new { hasVoted = false }); // This should be implemented properly
+        var result = await _mediator.Send(new GetUserVoteStatusQuery { UserId = userId });
+        return Ok(result);
     }
 }

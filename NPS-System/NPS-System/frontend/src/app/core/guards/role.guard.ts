@@ -24,7 +24,7 @@ export class RoleGuard implements CanActivate {
     if (user?.role === 'Admin') {
       return this.router.createUrlTree(['/dashboard']);
     } else if (user?.role === 'Votante') {
-      return this.router.createUrlTree(['/voting']);
+      return this.router.createUrlTree(['/survey']);
     }
     
     return this.router.createUrlTree(['/login']);

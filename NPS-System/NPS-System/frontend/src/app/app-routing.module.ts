@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { LoginComponent } from './features/login/login.component';
-import { VotingComponent } from './features/voting/voting.component';
-import { DashboardComponent } from './features/dashboard/dashboard.component';
+import { LoginComponent } from './features/auth/login/login.component';
+import { SurveyComponent } from './features/survey/survey.component';
+import { DashboardComponent } from './features/results/dashboard/dashboard.component';
 import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard } from './core/guards/role.guard';
 
@@ -17,8 +17,8 @@ const routes: Routes = [
     component: LoginComponent 
   },
   { 
-    path: 'voting', 
-    component: VotingComponent,
+    path: 'survey', 
+    component: SurveyComponent,
     canActivate: [AuthGuard, RoleGuard],
     data: { role: 'Votante' }
   },

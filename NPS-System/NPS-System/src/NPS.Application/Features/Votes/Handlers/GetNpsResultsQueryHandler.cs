@@ -24,6 +24,13 @@ public class GetNpsResultsQueryHandler : IRequestHandler<GetNpsResultsQuery, Nps
 
         var result = _mapper.Map<NpsResultDto>(statistics);
         result.RecentVotes = _mapper.Map<List<VoteDto>>(votes.OrderByDescending(v => v.CreatedAt).Take(10).ToList());
+        result.NpsLabel = result.NpsScore switch
+        {
+            >= 50m => "Excelente",
+            >= 0m => "Bueno",
+            >= -50m => "Necesita mejora",
+            _ => "Crítico"
+        };
 
         return result;
     }

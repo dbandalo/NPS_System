@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, interval, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, tap, interval, Subscription, of, throwError, catchError, switchMap } from 'rxjs';
 import { Router } from '@angular/router';
 import { 
   User, 
@@ -72,18 +72,37 @@ export class AuthService {
   refreshToken(): Observable<RefreshTokenResponse> {
     const refreshToken = localStorage.getItem('refreshToken');
     const request: RefreshTokenRequest = { refreshToken: refreshToken || '' };
-    
+
     return this.http.post<RefreshTokenResponse>(`${this.apiUrl}/refresh-token`, request).pipe(
       tap(response => {
         if (response.success && response.accessToken) {
           localStorage.setItem('accessToken', response.accessToken);
           localStorage.setItem('refreshToken', response.refreshToken || '');
           localStorage.setItem('sessionExpiresAt', response.expiresAt?.toString() || '');
-          
+
           this.sessionExpiresAtSubject.next(response.expiresAt ? new Date(response.expiresAt) : null);
         } else {
-          this.logout();
+          this.clearSession();
         }
+      }),
+      catchError(() => {
+        this.clearSession();
+        return throwError(() => new Error('Refresh failed'));
+      })
+    );
+  }
+
+  /**
+   * Renovación de access token para el interceptor (cola ante varios 401).
+   * Devuelve el nuevo JWT o error.
+   */
+  refreshAccessToken(): Observable<string> {
+    return this.refreshToken().pipe(
+      switchMap(response => {
+        if (response.success && response.accessToken) {
+          return of(response.accessToken);
+        }
+        return throwError(() => new Error('Refresh failed'));
       })
     );
   }

@@ -1,5 +1,9 @@
 # Sistema NPS (Net Promoter Score)
 
+**Instrucciones de instalación y despliegue para evaluadores:** ver el **`README.md` en la raíz del repositorio** (dos niveles arriba: `../../README.md` desde esta carpeta).
+
+---
+
 Sistema Full Stack para encuestas NPS con autenticacion JWT, bloqueo de cuenta y sesiones con timeout.
 
 ## Tecnologias
@@ -27,17 +31,20 @@ Sistema Full Stack para encuestas NPS con autenticacion JWT, bloqueo de cuenta y
 ## Estructura del Proyecto
 
 ```
-NPS-System/
+NPS-System/                   # Raiz de backend + frontend (sin Next.js)
 ├── src/
 │   ├── NPS.Domain/           # Entidades e interfaces
 │   ├── NPS.Application/      # DTOs, Commands, Queries, Handlers
 │   ├── NPS.Infrastructure/   # Repositorios, Servicios
 │   └── NPS.API/              # Controllers, Middleware
-├── frontend/                 # Proyecto Angular
+├── frontend/                 # Proyecto Angular 16+
 │   └── src/
 │       └── app/
-│           ├── core/         # Services, Guards, Interceptors
-│           ├── features/     # Login, Voting, Dashboard
+│           ├── core/         # Services, Guards, Interceptors, Models
+│           ├── features/
+│           │   ├── auth/login/      # Login
+│           │   ├── survey/          # Encuesta NPS (votante)
+│           │   └── results/dashboard/  # Dashboard (admin)
 │           └── shared/       # Componentes compartidos
 ├── database/                 # Scripts SQL Server
 └── NPS.sln                   # Solucion Visual Studio

@@ -49,7 +49,18 @@ public class AuthController : ControllerBase
     /// </summary>
     [HttpPost("refresh-token")]
     [AllowAnonymous]
-    public async Task<ActionResult<RefreshTokenResponseDto>> RefreshToken([FromBody] RefreshTokenRequestDto request)
+    public Task<ActionResult<RefreshTokenResponseDto>> RefreshToken([FromBody] RefreshTokenRequestDto request)
+        => RefreshTokenCore(request);
+
+    /// <summary>
+    /// Alias según material de referencia (POST /api/auth/refresh). Mismo contrato que refresh-token.
+    /// </summary>
+    [HttpPost("refresh")]
+    [AllowAnonymous]
+    public Task<ActionResult<RefreshTokenResponseDto>> Refresh([FromBody] RefreshTokenRequestDto request)
+        => RefreshTokenCore(request);
+
+    private async Task<ActionResult<RefreshTokenResponseDto>> RefreshTokenCore(RefreshTokenRequestDto request)
     {
         var command = new RefreshTokenCommand
         {
